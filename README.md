@@ -1,14 +1,14 @@
 # souperDuper
 
-Duplicate any **soup.io** accounts content
+Duplicate any **soup.io** account's content
 
-[soup.io](http://soup.io/) is a nice image sharing service but it is verry often down (and/or slow as **HELL**).  
+[soup.io](http://soup.io/) is a nice image sharing service but it is very often down (and/or slow as **HELL**).  
 Or imagine you want your soup or the soup of a friend as a screensaver or viewig it offline.
 No problem with souperDuper!
 
 ## supports:
 
-* multiple account dupeing
+* multiple account duplication (just start it multiple times ;)
 * resume: saves progress after every *"page"*
 
 ## ToDo:
