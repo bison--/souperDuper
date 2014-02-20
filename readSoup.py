@@ -10,6 +10,7 @@ import time
 import datetime
 import json
 
+
 class souperDuper(object):
 	def __init__(self, user):
 		self.account = user
@@ -79,9 +80,9 @@ class souperDuper(object):
 
 		for img in soup.findAll('img'):
 			imgUrl = str(img.get('src'))
-			if "asset" in  imgUrl and not "square" in imgUrl:
+			if "asset" in imgUrl and not "square" in imgUrl:
 				if not imgUrl in self.knownUrls:
-					self.counter  += 1
+					self.counter += 1
 					self.knownUrls[imgUrl] = self.counter
 
 					self.debug(str(self.counter) + ' > ' + imgUrl)
@@ -89,7 +90,7 @@ class souperDuper(object):
 					#fileExt = imgUrl.split('.')
 					#fileExt = fileExt[len(fileExt)-1]
 
-					destFile =  os.path.join(self.destPath, self.getSaveFileName(imgUrl))#str(self.counter) + '.' + fileExt)
+					destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
 					fh = open(destFile, "wb")
 					fh.write(urllib2.urlopen(imgUrl).read())
 					fh.close()

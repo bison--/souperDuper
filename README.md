@@ -1,4 +1,3 @@
-souperDuper
-===========
+# souperDuper
 
-Duplicate any soup.io account content
+Duplicate any soup.io accounts content
