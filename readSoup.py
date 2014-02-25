@@ -6,22 +6,38 @@ import urllib2
 import BeautifulSoup
 import os
 import sys
-import time
 import datetime
 import json
 
 
 class souperDuper(object):
-	def __init__(self, user):
-		self.account = user
+	def __init__(self, args):
+		self.account = args[1]
 		self.destPath = os.path.join("images", self.account)
 		self.counter = 0
-		self.knownUrlsFile = os.path.join("images", user + ".knownUrls.txt")
+		self.knownUrlsFile = os.path.join("images", self.account + ".knownUrls.txt")
 		self.knownUrls = {}
+
+		self.lastPage = ""
+		self.doResume = False
+		self.imageTypes = []
+
+		for arg in args[2:]:
+			if arg.startswith("imageTypes="):
+				tmp = arg.replace("imageTypes=", "")
+				self.imageTypes = tmp.split(",")
+				for i in range(len(self.imageTypes)):
+					self.imageTypes[i] = "." + self.imageTypes[i]
+			elif arg == "resume":
+				self.doResume = True
+			else:
+				print "UNKNOWN PARAMETER:", arg
+				exit(404)
 
 		if not os.path.exists(self.destPath):
 			os.makedirs(self.destPath)
 		else:
+			# magic voodoo I did not wrote, but works!
 			self.counter = len([name for name in os.listdir(self.destPath) if os.path.isfile(name)])
 
 	def loadKnownUrls(self, fullPath=""):
@@ -46,7 +62,7 @@ class souperDuper(object):
 	def grabAll(self):
 		self.loadKnownUrls()
 
-		html = self.grab()
+		html = self.grabPage()
 
 		foundNext = True
 		while foundNext:
@@ -56,46 +72,60 @@ class souperDuper(object):
 			if not nextSegment:
 				foundNext = False
 			else:
-				self.debug("next: " + nextSegment)
-				html = self.grab(nextSegment)
+				self.debug("got: " + str(len(self.knownUrls)) + " next: " + nextSegment)
+				html = self.grabPage(nextSegment)
 
 		self.saveKnownUrls()
 
-	def grab(self, urlExt=""):
+	def grabPage(self, urlExt=""):
 		grabUrl = 'http://' + self.account + '.soup.io'
-
+		prettyHtml = ""
 		#SOUP.Endless.next_url
 		if urlExt != "":
 			grabUrl += "/" + urlExt
 
-		response = urllib2.urlopen(grabUrl)
-		html = response.read()
+		try:
+			response = urllib2.urlopen(grabUrl)
+			html = response.read()
 
-		soup = BeautifulSoup.BeautifulSoup(html)
+			soup = BeautifulSoup.BeautifulSoup(html)
 
-		#print(soup.prettify())
-		#exit()
-		#for link in soup.findAll('a'):
-		#	print(link.get('href'))
+			#print(soup.prettify())
+			#exit()
+			#for link in soup.findAll('a'):
+			#	print(link.get('href'))
 
-		for img in soup.findAll('img'):
-			imgUrl = str(img.get('src'))
-			if "asset" in imgUrl and not "square" in imgUrl:
-				if not imgUrl in self.knownUrls:
-					self.counter += 1
-					self.knownUrls[imgUrl] = self.counter
+			for img in soup.findAll('img'):
+				imgUrl = str(img.get('src'))
+				if "asset" in imgUrl and not "square" in imgUrl:
+					if not imgUrl in self.knownUrls and self._isValidFile(imgUrl):
+						self.counter += 1
+						self.knownUrls[imgUrl] = self.counter
 
-					self.debug(str(self.counter) + ' > ' + imgUrl)
+						self.debug(str(self.counter) + ' > ' + imgUrl)
 
-					#fileExt = imgUrl.split('.')
-					#fileExt = fileExt[len(fileExt)-1]
+						destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
+						fh = open(destFile, "wb")
+						fh.write(urllib2.urlopen(imgUrl).read())
+						fh.close()
+			prettyHtml = soup.prettify()
+		except Exception as ex:
+			self.debug("ERROR: " + grabUrl + "\n" + str(ex))
 
-					destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
-					fh = open(destFile, "wb")
-					fh.write(urllib2.urlopen(imgUrl).read())
-					fh.close()
+		return prettyHtml
 
-		return soup.prettify()
+	def _isValidFile(self, url):
+		if not self.imageTypes:
+			return True
+
+		#fileExt = imgUrl.split('.')
+		#fileExt = fileExt[len(fileExt)-1]
+		fileName, fileExt = os.path.splitext(url)
+		#print fileName,"#", fileExt, fileExt in self.imageTypes
+		if fileExt.lower() in self.imageTypes:
+			return True
+
+		return False
 
 	def getSaveFileName(self, url=""):
 		#tmp = url.replace('http://', '')
@@ -116,7 +146,15 @@ class souperDuper(object):
 
 if __name__ == "__main__":
 	if len(sys.argv) > 1:
-		sd = souperDuper(sys.argv[1])
+		sd = souperDuper(sys.argv)
 		sd.grabAll()
 	else:
-		print "first parameter must be the user you want to dupe"
+		print """first parameter must be the user you want to dupe
+
+# options #
+imageTypes: the file extensions separated with ,
+
+# samples #
+readSoup.py bison
+readSoup.py bison imageTypes=png,gif
+"""
