@@ -11,6 +11,22 @@ No problem with souperDuper!
 * multiple account duplication (just start it multiple times ;)
 * resume: saves progress after every *"page"*
 
+## Installation:
+
+You will need BeautifulSoup.
+Depending on your system you can use pip
+
+    pip install BeautifulSoup
+
+or on Debian based systems:
+
+    apt-get install python-beautifulsoup
+
+
+## Use:
+
+    ./readSoup.py SoupUserName
+
 ## ToDo:
 
 * order normalisation for new content!
