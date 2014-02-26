@@ -28,7 +28,7 @@ or on Debian based systems:
 
 To grab the soup from a user just type:
 
-    ./readSoup.py SoupUserName
+    readSoup.py SoupUserName
 
 If you only want specific image types:
 
