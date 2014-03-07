@@ -37,7 +37,7 @@ class souperDuper(object):
 		if not os.path.exists(self.destPath):
 			os.makedirs(self.destPath)
 		else:
-			# magic voodoo I did not wrote, but works!
+			# Magic voodoo I did not write, but it works!
 			self.counter = len([name for name in os.listdir(self.destPath) if os.path.isfile(name)])
 
 	def loadKnownUrls(self, fullPath=""):
