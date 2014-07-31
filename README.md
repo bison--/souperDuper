@@ -35,8 +35,8 @@ If you only want specific image types:
     readSoup.py SoupUserName imageTypes=png,gif
 
 You also can update all the accounts in the image folder
-	
-	updateSoup.py 
+
+    updateSoup.py 
 
 The program will grep the usernames from the knownUrls.txt files
 
