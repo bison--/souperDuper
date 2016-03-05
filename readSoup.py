@@ -9,6 +9,7 @@ import sys
 import datetime
 import json
 
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'
 
 class souperDuper(object):
 	def __init__(self, args):
@@ -85,7 +86,9 @@ class souperDuper(object):
 			grabUrl += "/" + urlExt
 
 		try:
-			response = urllib2.urlopen(grabUrl)
+			pageOpener = urllib2.build_opener()
+			pageOpener.addheaders = [('User-agent', USER_AGENT)]
+			response = pageOpener.open(grabUrl)
 			html = response.read()
 
 			soup = BeautifulSoup.BeautifulSoup(html)
@@ -106,7 +109,10 @@ class souperDuper(object):
 
 						destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
 						fh = open(destFile, "wb")
-						fh.write(urllib2.urlopen(imgUrl).read())
+						imageOpener = urllib2.build_opener()
+						imageOpener.addheaders = [('User-agent', USER_AGENT)]
+						fh.write(imageOpener.open(imgUrl).read())
+						#fh.write(urllib2.urlopen(imgUrl).read())
 						fh.close()
 			prettyHtml = soup.prettify()
 		except Exception as ex:
