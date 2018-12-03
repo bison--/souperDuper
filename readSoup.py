@@ -98,6 +98,22 @@ class souperDuper(object):
 			#for link in soup.findAll('a'):
 			#	print(link.get('href'))
 
+			for img in soup.findAll('a', {'class' : 'lightbox'}):
+				imgUrl = str(img.get('href'))
+				if "asset" in imgUrl and not "square" in imgUrl:
+					if not imgUrl in self.knownUrls and self._isValidFile(imgUrl):
+						self.counter += 1
+						self.knownUrls[imgUrl] = self.counter
+
+						self.debug(str(self.counter) + ' > ' + imgUrl)
+
+						destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
+						fh = open(destFile, "wb")
+						imageOpener = urllib2.build_opener()
+						imageOpener.addheaders = [('User-agent', USER_AGENT)]
+						fh.write(imageOpener.open(imgUrl).read())
+						#fh.write(urllib2.urlopen(imgUrl).read())
+						fh.close()
 			for img in soup.findAll('img'):
 				imgUrl = str(img.get('src'))
 				if "asset" in imgUrl and not "square" in imgUrl:
