@@ -8,8 +8,11 @@ import os
 import sys
 import datetime
 import json
+import time
+import random
 
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'
+USER_AGENT_VERSION = str(random.randint(42, 62))
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:' + USER_AGENT_VERSION + '.0) Gecko/20100101 Firefox/' + USER_AGENT_VERSION + '.1'
 
 class souperDuper(object):
 	def __init__(self, args):
@@ -107,13 +110,15 @@ class souperDuper(object):
 
 						self.debug(str(self.counter) + ' > ' + imgUrl)
 
-						destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl))
+						destFile = os.path.join(self.destPath, self.getSaveFileName(imgUrl, True))
 						fh = open(destFile, "wb")
 						imageOpener = urllib2.build_opener()
 						imageOpener.addheaders = [('User-agent', USER_AGENT)]
 						fh.write(imageOpener.open(imgUrl).read())
 						#fh.write(urllib2.urlopen(imgUrl).read())
 						fh.close()
+						time.sleep(random.uniform(0.01, 0.15))
+
 			for img in soup.findAll('img'):
 				imgUrl = str(img.get('src'))
 				if "asset" in imgUrl and not "square" in imgUrl:
@@ -130,10 +135,13 @@ class souperDuper(object):
 						fh.write(imageOpener.open(imgUrl).read())
 						#fh.write(urllib2.urlopen(imgUrl).read())
 						fh.close()
+						time.sleep(random.uniform(0.01, 0.15))
+
 			prettyHtml = soup.prettify()
 		except Exception as ex:
 			self.debug("ERROR: " + grabUrl + "\n" + str(ex))
 
+		time.sleep(random.uniform(0.1, 0.25))
 		return prettyHtml
 
 	def _isValidFile(self, url):
@@ -149,10 +157,15 @@ class souperDuper(object):
 
 		return False
 
-	def getSaveFileName(self, url=""):
+	def getSaveFileName(self, url="", isHd = False):
 		#tmp = url.replace('http://', '')
 		tmp = url.split('/')
-		return str(self.counter) + '#' + tmp[len(tmp)-2] + "#" + tmp[len(tmp)-1]
+		lastPart = tmp[len(tmp)-1]
+
+		if isHd:
+			lastPart = lastPart.replace('.', '_hd.')
+
+		return str(self.counter) + '#' + tmp[len(tmp)-2] + "#" + lastPart
 
 	def getNextEndless(self, html):
 		#http://user.soup.io/since/294388231
